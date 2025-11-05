@@ -1,0 +1,72 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <i class="bi bi-activity me-2 fs-4"></i>
+      <span class="fw-bold">{{ title }}</span>
+    </a>
+    <button 
+      class="navbar-toggler" 
+      type="button" 
+      data-bs-toggle="collapse" 
+      data-bs-target="#navbarNav" 
+      aria-controls="navbarNav" 
+      aria-expanded="false" 
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/usuarios" routerLinkActive="active">
+            <i class="bi bi-people-fill"></i> Usuarios
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">
+            <i class="bi bi-calendar-event"></i> Eventos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">
+            <i class="bi bi-trophy"></i> Logros
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">
+            <i class="bi bi-bullseye"></i> Metas
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Contenido principal -->
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<footer class="footer mt-auto py-4 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h5 class="text-primary">
+          <i class="bi bi-activity"></i> MoveSync
+        </h5>
+        <p class="text-muted">
+          Sistema de gestión de actividades físicas y seguimiento de salud.
+        </p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="text-muted mb-1">
+          Desarrollado como parte del curso de Bases de Datos 1
+        </p>
+        <p class="text-muted">
+          &copy; {{ currentYear }} MoveSync. Todos los derechos reservados.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

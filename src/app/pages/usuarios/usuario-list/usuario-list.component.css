@@ -1,0 +1,32 @@
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.table th {
+  font-weight: 600;
+  color: #495057;
+}
+
+.btn-group .btn {
+  margin: 0 2px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+h2 {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.bi {
+  margin-right: 5px;
+}

@@ -1,0 +1,234 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-person-plus-fill"></i>
+            {{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Mensaje de error -->
+          <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Indicador de carga -->
+          <div class="text-center my-5" *ngIf="loading && !submitted">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" *ngIf="!loading || submitted">
+            
+            <!-- Información Personal -->
+            <div class="mb-4">
+              <h5 class="text-secondary border-bottom pb-2">
+                <i class="bi bi-person"></i> Información Personal
+              </h5>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="primerNombre" class="form-label">Primer Nombre <span class="text-danger">*</span></label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="primerNombre"
+                    formControlName="primerNombre"
+                    [class.is-invalid]="submitted && f['primerNombre'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['primerNombre'].errors">
+                    <div *ngIf="f['primerNombre'].errors['required']">El primer nombre es requerido</div>
+                    <div *ngIf="f['primerNombre'].errors['minlength']">Mínimo 2 caracteres</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="segundoNombre" class="form-label">Segundo Nombre</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="segundoNombre"
+                    formControlName="segundoNombre">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="primerApellido" class="form-label">Primer Apellido <span class="text-danger">*</span></label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="primerApellido"
+                    formControlName="primerApellido"
+                    [class.is-invalid]="submitted && f['primerApellido'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['primerApellido'].errors">
+                    <div *ngIf="f['primerApellido'].errors['required']">El primer apellido es requerido</div>
+                    <div *ngIf="f['primerApellido'].errors['minlength']">Mínimo 2 caracteres</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="segundoApellido" class="form-label">Segundo Apellido</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="segundoApellido"
+                    formControlName="segundoApellido">
+                </div>
+              </div>
+            </div>
+
+            <!-- Identificación -->
+            <div class="mb-4">
+              <h5 class="text-secondary border-bottom pb-2">
+                <i class="bi bi-card-text"></i> Identificación
+              </h5>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="cedula" class="form-label">Cédula <span class="text-danger">*</span></label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="cedula"
+                    formControlName="cedula"
+                    [class.is-invalid]="submitted && f['cedula'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['cedula'].errors">
+                    <div *ngIf="f['cedula'].errors['required']">La cédula es requerida</div>
+                    <div *ngIf="f['cedula'].errors['pattern']">Solo se permiten números</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                  <input 
+                    type="date" 
+                    class="form-control" 
+                    id="fechaNacimiento"
+                    formControlName="fechaNacimiento"
+                    [class.is-invalid]="submitted && f['fechaNacimiento'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['fechaNacimiento'].errors">
+                    La fecha de nacimiento es requerida
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos Físicos -->
+            <div class="mb-4">
+              <h5 class="text-secondary border-bottom pb-2">
+                <i class="bi bi-activity"></i> Datos Físicos
+              </h5>
+              
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="peso" class="form-label">Peso (kg) <span class="text-danger">*</span></label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    id="peso"
+                    formControlName="peso"
+                    step="0.1"
+                    [class.is-invalid]="submitted && f['peso'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['peso'].errors">
+                    <div *ngIf="f['peso'].errors['required']">El peso es requerido</div>
+                    <div *ngIf="f['peso'].errors['min']">El peso debe ser mayor a 0</div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="estatura" class="form-label">Estatura (cm) <span class="text-danger">*</span></label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    id="estatura"
+                    formControlName="estatura"
+                    [class.is-invalid]="submitted && f['estatura'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['estatura'].errors">
+                    <div *ngIf="f['estatura'].errors['required']">La estatura es requerida</div>
+                    <div *ngIf="f['estatura'].errors['min']">La estatura debe ser mayor a 0</div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="genero" class="form-label">Género <span class="text-danger">*</span></label>
+                  <select 
+                    class="form-select" 
+                    id="genero"
+                    formControlName="genero"
+                    [class.is-invalid]="submitted && f['genero'].errors">
+                    <option value="">Seleccione...</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                  </select>
+                  <div class="invalid-feedback" *ngIf="submitted && f['genero'].errors">
+                    El género es requerido
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos de Acceso -->
+            <div class="mb-4">
+              <h5 class="text-secondary border-bottom pb-2">
+                <i class="bi bi-shield-lock"></i> Datos de Acceso
+              </h5>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="correo" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                  <input 
+                    type="email" 
+                    class="form-control" 
+                    id="correo"
+                    formControlName="correo"
+                    [class.is-invalid]="submitted && f['correo'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['correo'].errors">
+                    <div *ngIf="f['correo'].errors['required']">El correo es requerido</div>
+                    <div *ngIf="f['correo'].errors['email']">Ingrese un correo válido</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="contrasena" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                  <input 
+                    type="password" 
+                    class="form-control" 
+                    id="contrasena"
+                    formControlName="contrasena"
+                    [class.is-invalid]="submitted && f['contrasena'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['contrasena'].errors">
+                    <div *ngIf="f['contrasena'].errors['required']">La contraseña es requerida</div>
+                    <div *ngIf="f['contrasena'].errors['minlength']">Mínimo 6 caracteres</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+              <button 
+                type="button" 
+                class="btn btn-secondary"
+                (click)="cancelar()">
+                <i class="bi bi-x-circle"></i> Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="loading">
+                <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+                <i class="bi bi-save" *ngIf="!loading"></i>
+                {{ isEditMode ? 'Actualizar' : 'Registrar' }} Usuario
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
