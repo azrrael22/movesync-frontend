@@ -49,11 +49,12 @@
               <td>{{ usuario.cedula }}</td>
               <td>{{ usuario.primerNombre }}</td>
               <td>{{ usuario.primerApellido }}</td>
+              <td>{{ usuario.correo }}</td>
               <td>{{ usuario.fechaNacimiento }}</td>
               <td class="text-center">
                 <div class="btn-group" role="group">
                   <button
-                    (click)="verPorCorreo(usuario.correo)"
+                    (click)="verDetalle(usuario.cedula)"
                     class="btn btn-sm btn-info"
                     title="Ver detalles"
                   >

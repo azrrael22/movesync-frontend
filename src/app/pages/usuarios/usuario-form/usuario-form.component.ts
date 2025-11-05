@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UsuarioService } from '../../../services/usuario.service';
 import { UsuarioRequestDTO } from '../../../models/usuario.model';
 
@@ -18,37 +23,37 @@ export class UsuarioFormComponent implements OnInit {
   cedula: string = '';
   loading: boolean = false;
   errorMessage: string = '';
-  submitted: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private usuarioService: UsuarioService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.initForm();
-  }
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    // Obtener la cédula de los parámetros si existe (modo edición)
     this.cedula = this.route.snapshot.params['id'];
     this.isEditMode = !!this.cedula;
 
+    this.inicializarFormulario();
+
     if (this.isEditMode) {
       this.cargarUsuario();
-      // En modo edición, deshabilitar el campo de cédula
+      // Deshabilitar el campo cédula en modo edición
       this.usuarioForm.get('cedula')?.disable();
     }
   }
 
-  initForm(): void {
+  inicializarFormulario(): void {
     this.usuarioForm = this.fb.group({
       primerNombre: ['', [Validators.required, Validators.minLength(2)]],
       segundoNombre: [''],
       primerApellido: ['', [Validators.required, Validators.minLength(2)]],
       segundoApellido: [''],
-      cedula: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-      peso: [null, [Validators.required, Validators.min(1)]],
-      estatura: [null, [Validators.required, Validators.min(1)]],
+      cedula: ['', [Validators.required, Validators.pattern(/^\d{6,12}$/)]],
+      peso: ['', [Validators.required, Validators.min(1)]],
+      estatura: ['', [Validators.required, Validators.min(1)]],
       genero: ['', Validators.required],
       contrasena: ['', [Validators.required, Validators.minLength(6)]],
       correo: ['', [Validators.required, Validators.email]],
@@ -59,67 +64,98 @@ export class UsuarioFormComponent implements OnInit {
   cargarUsuario(): void {
     this.loading = true;
     this.usuarioService.obtenerPorCedula(this.cedula).subscribe({
-      next: (usuario) => {
-        // Como el backend devuelve fechas en formato dd-MM-yyyy, necesitamos convertir
-        const fechaPartes = usuario.fechaNacimiento.split('-');
-        const fechaISO = `${fechaPartes[2]}-${fechaPartes[1]}-${fechaPartes[0]}`;
-        
+      next: (data) => {
+        // Cargar los datos en el formulario
+        // Nota: El backend solo devuelve algunos campos en UsuarioResponseDTO
         this.usuarioForm.patchValue({
-          primerNombre: usuario.primerNombre,
-          primerApellido: usuario.primerApellido,
-          cedula: usuario.cedula,
-          correo: usuario.correo,
-          fechaNacimiento: fechaISO
+          primerNombre: data.primerNombre,
+          primerApellido: data.primerApellido,
+          cedula: data.cedula,
+          correo: data.correo,
+          fechaNacimiento: data.fechaNacimiento
         });
-        
         this.loading = false;
       },
       error: (error) => {
         this.errorMessage = 'Error al cargar el usuario: ' + error.message;
         this.loading = false;
+        console.error('Error:', error);
       }
     });
   }
 
-  get f() {
-    return this.usuarioForm.controls;
-  }
-
-  convertirFecha(fechaISO: string): string {
-    // Convertir de yyyy-MM-dd a dd-MM-yyyy para el backend
-    const [year, month, day] = fechaISO.split('-');
-    return `${day}-${month}-${year}`;
-  }
-
   onSubmit(): void {
-    this.submitted = true;
-
     if (this.usuarioForm.invalid) {
+      Object.keys(this.usuarioForm.controls).forEach((key) => {
+        const control = this.usuarioForm.get(key);
+        if (control?.invalid) {
+          control.markAsTouched();
+        }
+      });
       return;
     }
 
     this.loading = true;
-    const formValue = this.usuarioForm.getRawValue(); // getRawValue incluye campos deshabilitados
     
-    const usuarioData: UsuarioRequestDTO = {
-      ...formValue,
-      fechaNacimiento: this.convertirFecha(formValue.fechaNacimiento)
-    };
+    // Usar getRawValue() para incluir campos deshabilitados (como cédula en modo edición)
+    const formValue = this.usuarioForm.getRawValue() as UsuarioRequestDTO;
 
-    const request = this.isEditMode
-      ? this.usuarioService.actualizarUsuario(this.cedula, usuarioData)
-      : this.usuarioService.registrarUsuario(usuarioData);
+    if (this.isEditMode) {
+      // Actualizar usuario existente
+      this.usuarioService.actualizarUsuario(this.cedula, formValue).subscribe({
+        next: () => {
+          alert('Usuario actualizado exitosamente');
+          this.router.navigate(['/usuarios']);
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al actualizar el usuario: ' + error.message;
+          this.loading = false;
+          console.error('Error:', error);
+        }
+      });
+    } else {
+      // Crear nuevo usuario
+      this.usuarioService.registrarUsuario(formValue).subscribe({
+        next: () => {
+          alert('Usuario creado exitosamente');
+          this.router.navigate(['/usuarios']);
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al crear el usuario: ' + error.message;
+          this.loading = false;
+          console.error('Error:', error);
+        }
+      });
+    }
+  }
 
-    request.subscribe({
-      next: () => {
-        alert(this.isEditMode ? 'Usuario actualizado exitosamente' : 'Usuario registrado exitosamente');
-        this.router.navigate(['/usuarios']);
-      },
-      error: (error) => {
-        this.errorMessage = 'Error al guardar el usuario: ' + error.message;
-        this.loading = false;
-      }
-    });
+  // Helper methods para validación en el template
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.usuarioForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.usuarioForm.get(fieldName);
+    
+    if (control?.hasError('required')) {
+      return 'Este campo es requerido';
+    }
+    if (control?.hasError('email')) {
+      return 'Email inválido';
+    }
+    if (control?.hasError('minlength')) {
+      const minLength = control.errors?.['minlength'].requiredLength;
+      return `Mínimo ${minLength} caracteres`;
+    }
+    if (control?.hasError('min')) {
+      return 'Valor debe ser mayor a 0';
+    }
+    if (control?.hasError('pattern')) {
+      return 'Formato inválido';
+    }
+    
+    return '';
   }
 
   cancelar(): void {

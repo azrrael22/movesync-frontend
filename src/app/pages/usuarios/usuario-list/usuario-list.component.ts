@@ -1,22 +1,25 @@
-import { Component, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { Router, RouterModule } from "@angular/router";
-import { UsuarioService } from "../../../services/usuario.service";
-import { UsuarioResponseDTO } from "../../../models/usuario.model";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { UsuarioService } from '../../../services/usuario.service';
+import { UsuarioResponseDTO } from '../../../models/usuario.model';
 
 @Component({
-  selector: "app-usuario-list",
+  selector: 'app-usuario-list',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: "./usuario-list.component.html",
-  styleUrls: ["./usuario-list.component.css"],
+  templateUrl: './usuario-list.component.html',
+  styleUrls: ['./usuario-list.component.css']
 })
 export class UsuarioListComponent implements OnInit {
   usuarios: UsuarioResponseDTO[] = [];
   loading: boolean = false;
-  errorMessage: string = "";
+  errorMessage: string = '';
 
-  constructor(private usuarioService: UsuarioService, private router: Router) {}
+  constructor(
+    private usuarioService: UsuarioService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarUsuarios();
@@ -24,7 +27,7 @@ export class UsuarioListComponent implements OnInit {
 
   cargarUsuarios(): void {
     this.loading = true;
-    this.errorMessage = "";
+    this.errorMessage = '';
 
     this.usuarioService.listarUsuarios().subscribe({
       next: (data) => {
@@ -32,37 +35,34 @@ export class UsuarioListComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage = "Error al cargar los usuarios: " + error.message;
+        this.errorMessage = 'Error al cargar los usuarios: ' + error.message;
         this.loading = false;
-        console.error("Error:", error);
-      },
+        console.error('Error:', error);
+      }
     });
   }
 
   verDetalle(cedula: string): void {
-    this.router.navigate(["/usuarios/ver", cedula]);
+    // Navega a la ruta de detalle usando la cédula
+    this.router.navigate(['/usuarios/ver', cedula]);
   }
 
   editarUsuario(cedula: string): void {
-    this.router.navigate(["/usuarios/editar", cedula]);
-  }
-
-  verPorCorreo(correo: string): void {
-    // Navega a la ruta que carga el detalle a partir del query param `correo`
-    this.router.navigate(["/usuarios/ver-correo"], { queryParams: { correo } });
+    // Navega a la ruta de edición usando la cédula
+    this.router.navigate(['/usuarios/editar', cedula]);
   }
 
   eliminarUsuario(cedula: string, nombreCompleto: string): void {
     if (confirm(`¿Está seguro de eliminar al usuario ${nombreCompleto}?`)) {
       this.usuarioService.eliminarUsuario(cedula).subscribe({
         next: () => {
-          alert("Usuario eliminado exitosamente");
+          alert('Usuario eliminado exitosamente');
           this.cargarUsuarios();
         },
         error: (error) => {
-          alert("Error al eliminar el usuario: " + error.message);
-          console.error("Error:", error);
-        },
+          alert('Error al eliminar el usuario: ' + error.message);
+          console.error('Error:', error);
+        }
       });
     }
   }

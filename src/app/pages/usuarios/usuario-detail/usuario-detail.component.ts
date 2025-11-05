@@ -1,21 +1,21 @@
-import { Component, OnInit } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { UsuarioService } from "../../../services/usuario.service";
-import { UsuarioResponseDTO } from "../../../models/usuario.model";
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { UsuarioService } from '../../../services/usuario.service';
+import { UsuarioResponseDTO } from '../../../models/usuario.model';
 
 @Component({
-  selector: "app-usuario-detail",
+  selector: 'app-usuario-detail',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: "./usuario-detail.component.html",
-  styleUrls: ["./usuario-detail.component.css"],
+  templateUrl: './usuario-detail.component.html',
+  styleUrls: ['./usuario-detail.component.css']
 })
 export class UsuarioDetailComponent implements OnInit {
   usuario: UsuarioResponseDTO | null = null;
   loading: boolean = false;
-  errorMessage: string = "";
-  cedula: string = "";
+  errorMessage: string = '';
+  cedula: string = '';
 
   constructor(
     private usuarioService: UsuarioService,
@@ -24,21 +24,12 @@ export class UsuarioDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Intentamos leer un query param `correo`. Si existe, cargamos por correo.
-    const correo = this.route.snapshot.queryParamMap.get("correo");
-    const idParam = this.route.snapshot.params["id"];
-
-    if (correo) {
-      // Cargar usuario por correo
-      this.cedula = "";
-      this.cargarUsuarioPorCorreo(correo);
-    } else if (idParam) {
-      // Cargar usuario por cédula (ruta existente)
-      this.cedula = idParam;
+    // Obtener la cédula de los parámetros de la ruta
+    this.cedula = this.route.snapshot.params['id'];
+    if (this.cedula) {
       this.cargarUsuario();
     } else {
-      this.errorMessage =
-        "No se proporcionó identificador para cargar el usuario.";
+      this.errorMessage = 'No se proporcionó una cédula válida';
     }
   }
 
@@ -50,56 +41,33 @@ export class UsuarioDetailComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage = "Error al cargar el usuario: " + error.message;
+        this.errorMessage = 'Error al cargar el usuario: ' + error.message;
         this.loading = false;
-        console.error("Error:", error);
-      },
-    });
-  }
-
-  cargarUsuarioPorCorreo(correo: string): void {
-    this.loading = true;
-    this.usuarioService.obtenerPorCorreo(correo).subscribe({
-      next: (data) => {
-        this.usuario = data;
-        // Guardamos la cédula para mantener compatibilidad con acciones (editar/eliminar)
-        if (this.usuario && this.usuario.cedula) {
-          this.cedula = this.usuario.cedula;
-        }
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage =
-          "Error al cargar el usuario por correo: " + error.message;
-        this.loading = false;
-        console.error("Error:", error);
-      },
+        console.error('Error:', error);
+      }
     });
   }
 
   eliminarUsuario(): void {
-    const ced = this.usuario?.cedula ?? this.cedula;
-    if (
-      ced &&
-      this.usuario &&
-      confirm(
-        `¿Está seguro de eliminar al usuario ${this.usuario.primerNombre} ${this.usuario.primerApellido}?`
-      )
-    ) {
-      this.usuarioService.eliminarUsuario(ced).subscribe({
+    if (!this.usuario) return;
+
+    const nombreCompleto = `${this.usuario.primerNombre} ${this.usuario.primerApellido}`;
+    
+    if (confirm(`¿Está seguro de eliminar al usuario ${nombreCompleto}?`)) {
+      this.usuarioService.eliminarUsuario(this.cedula).subscribe({
         next: () => {
-          alert("Usuario eliminado exitosamente");
-          this.router.navigate(["/usuarios"]);
+          alert('Usuario eliminado exitosamente');
+          this.router.navigate(['/usuarios']);
         },
         error: (error) => {
-          alert("Error al eliminar el usuario: " + error.message);
-          console.error("Error:", error);
-        },
+          alert('Error al eliminar el usuario: ' + error.message);
+          console.error('Error:', error);
+        }
       });
     }
   }
 
   volver(): void {
-    this.router.navigate(["/usuarios"]);
+    this.router.navigate(['/usuarios']);
   }
 }
